@@ -11,10 +11,11 @@ typedef struct
 
 typedef struct 
 {
-    uint16_t cellvoltage[8];
-    uint16_t hallvoltage[2];
-    int temperature[2];
-    long unixtime;
+    unsigned long cellvoltage[8];
+    unsigned long hallvoltage[2];
+    unsigned long temperature[2];
+    unsigned long unixtime;
+    unsigned long samplecount;
     /* data */
 }LOGOBJEKT;
 

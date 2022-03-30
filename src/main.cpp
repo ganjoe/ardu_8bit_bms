@@ -3,7 +3,10 @@
 
 void setup() {
 
-  analogReference(INTERNAL2V56);  // a built-in 2.56V reference (Arduino Mega only) 
+  // initialize GDB stub
+
+
+  //analogReference(INTERNAL2V56);  // a built-in 2.56V reference (Arduino Mega only) 
   Serial.begin(9600);
 
   
@@ -20,44 +23,45 @@ void setup() {
   
 }
 
-
-
 void loop() 
 {
-  LOGOBJEKT newdata ={0};
-  measureVoltages(&newdata, 3);
+  LOGOBJEKT newdata = {0};  // die null ist wichtig
+  newdata.samplecount =2048;
+  measureVoltages(&newdata);
   printLog(&newdata);
-  _delay_ms(500);
+  //_delay_ms(500);
   // put your main code here, to run repeatedly:
 }
 
 void printLog(LOGOBJEKT *log)
 {
-Serial.println("---REPORT: LOGOBJEKT---");
-for (size_t i = 0; i < battery.cellcount; i++)
-{
-  Serial.print(i,DEC);
-  Serial.print(":\t");
-  Serial.println(log->cellvoltage[i]); 
-}
+  Serial.print("---REPORT: LOGOBJEKT(");
+  Serial.print(log->samplecount,DEC);
+  Serial.println(")---");
+  for (size_t i = 0; i < battery.cellcount; i++)
+    {
+      Serial.print(i,DEC);
+      Serial.print(":\t");
+      Serial.println(log->cellvoltage[i]); 
+    }
 
  
 }
 
-RTNCODE measureVoltages (LOGOBJEKT *log, unsigned int averaging_Samples)
+RTNCODE measureVoltages (LOGOBJEKT *log)
 {
 
-for (size_t i = 0; i < averaging_Samples; i++)
+for (size_t i = 0; i < log->samplecount; i++)
 {
     for (size_t i = 0; i < battery.cellcount; i++)
     {
-     log->cellvoltage[1] += analogRead(i); 
+     log->cellvoltage[i] += analogRead(i); 
     }   
 }
 
 for (size_t i = 0; i < battery.cellcount; i++)
 {
-    log->cellvoltage[i] /= averaging_Samples;
+    log->cellvoltage[i] /= log->samplecount;
 }
 
 return OK;

@@ -3,7 +3,7 @@
 
 BATTPARAMS battery;
 
-RTNCODE measureVoltages (LOGOBJEKT *log, unsigned int averaging_Samples);
-void printLog(LOGOBJEKT *log);
+RTNCODE measureVoltages (LOGOBJEKT *log);
+void    printLog        (LOGOBJEKT *log);
 
 
