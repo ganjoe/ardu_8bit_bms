@@ -23,7 +23,7 @@ void setup() {
   cmdMessenger.printLfCr();   // Adds newline to every command
   attachCommandCallbacks();
   dlog.flag_PeriodicReportEnable = 1;
-  livedata.samplecount =1024;
+  livedata.samplecount =1;
   
   
   akku.cell_max_temperature = 5500;    //in milli-Grad
@@ -50,15 +50,13 @@ void setup() {
 
 void loop() 
 {
- 
- 
   avgVoltages     (&livedata, &akku);
   calcCellVoltage (&livedata, &akku);
   scaleCellVoltage(&livedata, &akku);
   printLog        (&livedata, &akku);
 
   cmdMessenger.feedinSerialData();
-  //_delay_ms(500);
+  //_delay_ms(1500);
   // put your main code here, to run repeatedly:
 }
 
@@ -76,7 +74,7 @@ void printLog(BATTDATA *log, BATTPARAMS *params)
       Serial.print(i,DEC);
       Serial.print(":\t");
       Serial.println(log->raw_CellVolts[i]); 
-      // Serial.println(log->raw_stringVolts[i]); 
+      //Serial.println(log->raw_stringVolts[i]); 
     }
     BATTSTAUS status = {0};
      status =updateStatus(log, params);
@@ -117,7 +115,12 @@ for (size_t i = 0; i < log->samplecount; i++)
 
 for (size_t i = 0; i < params->cellcount; i++)
 {
-    log->raw_stringVolts[i] /= log->samplecount;
+  /*
+  stringVolts hat noch den alten wert, der muss durch "+1" in der mittelwertbildung berücksichtig werden
+  wird stringVolts vorher auf 0 gesetzt entfällt +1
+  ohne "+1" muss auch die 0 alls illegaler wert abgefangen werden
+  */
+    log->raw_stringVolts[i] /= log->samplecount +1;
 }
 
 return OK;
@@ -193,9 +196,12 @@ void attachCommandCallbacks()
 void help()
 {  
   dlog.flag_PeriodicReportEnable = false;
+  Serial.println("");
+  Serial.println(" Argument -1 Zeigt aktuellen Wert ohne änderung an"); 
+  Serial.println(" Temperaturen in grad Kelvin (10-3) angeben");
   Serial.println(" 0;                     - diese Ausgabe"); 
   Serial.println(" 1,<setPeriodicReport>  - Live-Daten Spam, 0..10: updates/sec");
-  Serial.println(" 2,<setAvgSamples>      - samples für mittelwerte pro kanal, 0..4096"); 
+  Serial.println(" 2,<setAvgSamples>      - samples für mittelwerte pro kanal, 1..4096"); 
   Serial.println(" 3,<setCellLowVolts>    - UVP Einzelzelle[mV], 0: aktueller Wert "); 
   Serial.println(" 4,<setCellHighVolts>   - OVP Einzelzelle[mV], 0: aktueller Wert "); 
   Serial.println(" 5,<setCellmaxDiff>     - max. Diff. Batt[mV], 0: aktueller Wert ");
@@ -206,10 +212,19 @@ void setCellLowVolts(){  Serial.println("Help:"); }
 void setCellHighVolts(){  Serial.println("Help:"); }
 void setCellmaxDiff(){  Serial.println("Help:"); }
 void setAvgSamples()
-{ 
-livedata.samplecount = cmdMessenger.readInt16Arg();
-Serial.print("setAvgSamples:");
-Serial.println(livedata.samplecount, DEC);
+{
+  int temp = cmdMessenger.readInt16Arg();
+  if (temp==-1)
+  {
+    Serial.print("setAvgSamples:");
+    Serial.println(livedata.samplecount, DEC);
+  }
+  else
+  {
+    livedata.samplecount = temp;
+    Serial.print("setAvgSamples:");
+    Serial.println(livedata.samplecount, DEC);
+  }
 };
 
 void setPeriodicReport()
