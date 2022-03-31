@@ -15,6 +15,18 @@ zweigstrom 100uA normiert auf 1024mV ADC und 4V zelle
 
 #define KELVIN  273150  //milli-Kelvin
 
+
+enum
+{
+  khelp,                // Command to request list of available commands
+  kPeriodicReport, 
+  ksetAvgSamples,
+  ksetCellLowVolts,      // Command to request led to be set in specific state  
+  ksetCellHighVolts,     // Command to request led to be set in to specific brightness  
+  ksetCellmaxDiff,       // Command to request led status
+  
+};
+
 typedef struct 
 {
  unsigned long lowest_cell;
@@ -37,20 +49,21 @@ typedef struct
 
 typedef struct 
 {
+    unsigned long unixtime;
+    unsigned long samplecount;    
     unsigned long raw_stringVolts[8];   //gemittelte adc-werte
     unsigned long raw_CellVolts[8];   //
     unsigned long hallvoltage[2];
     unsigned long temperature[2];
-    unsigned long unixtime;
-    unsigned long samplecount;
-    BATTSTAUS status;
 
+    
     /* data */
 }BATTDATA;
 
-
-
-
+typedef struct 
+{
+    int flag_PeriodicReportEnable;
+}DATALOGGA;
 
 typedef enum 
 {

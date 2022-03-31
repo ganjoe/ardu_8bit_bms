@@ -1,5 +1,6 @@
 
 #include <functions.h>
+#include <CmdMessenger.h>
 
 //#define ARDU10BITADC
 //#define ARDU12BITADC
@@ -8,15 +9,22 @@
 
 
 BATTPARAMS akku;
+DATALOGGA dlog; 
+BATTDATA livedata;  // die null ist wichtig
+
+ 
+CmdMessenger cmdMessenger = CmdMessenger(Serial);
 
 void setup() {
-
-  // initialize GDB stub
-
+ 
 
   //analogReference(INTERNAL2V56);  // a built-in 2.56V reference (Arduino Mega only) 
   Serial.begin(9600);
-
+  cmdMessenger.printLfCr();   // Adds newline to every command
+  attachCommandCallbacks();
+  dlog.flag_PeriodicReportEnable = 1;
+  livedata.samplecount =1024;
+  
   
   akku.cell_max_temperature = 5500;    //in milli-Grad
   akku.cell_min_temperature = -0500;
@@ -36,25 +44,30 @@ void setup() {
   akku.resFaktor[CELL06] = 1L;
   akku.resFaktor[CELL07] = 1L;
   akku.resFaktor[CELL08] = 1L;
-  
+  Serial.print("setup done");
+
 }
 
 void loop() 
 {
-  BATTDATA livedata = {0};  // die null ist wichtig
-  livedata.samplecount =2048;
-
+ 
+ 
   avgVoltages     (&livedata, &akku);
   calcCellVoltage (&livedata, &akku);
   scaleCellVoltage(&livedata, &akku);
   printLog        (&livedata, &akku);
+
+  cmdMessenger.feedinSerialData();
   //_delay_ms(500);
   // put your main code here, to run repeatedly:
 }
 
 void printLog(BATTDATA *log, BATTPARAMS *params)
 {
-  Serial.print("---REPORT: LOGOBJEKT(");
+  if(dlog.flag_PeriodicReportEnable){
+  Serial.println("---REPORT: LOGOBJEKT---");
+  Serial.println("!!! Type '0;' for help !!!");
+
   Serial.print(log->samplecount,DEC);
   Serial.println(")---");
  
@@ -71,6 +84,7 @@ void printLog(BATTDATA *log, BATTPARAMS *params)
      Serial.print("highest Cell:"); Serial.println(status.highest_cell, DEC);
      Serial.print("diff cell:");    Serial.println(status.diff_cell, DEC);
      Serial.print("enable:");       Serial.println(status.status, DEC);
+  }
  
 }
 
@@ -121,7 +135,7 @@ return OK;
 
 RTNCODE scaleCellVoltage(BATTDATA *batt, BATTPARAMS *params)
 {
-  for (size_t i = 0; i < batt->samplecount; i++)
+  for (size_t i = 0; i < params->cellcount; i++)
   {
     batt->raw_CellVolts[i] *= params->resFaktor[i];
   }
@@ -163,3 +177,49 @@ BATTSTAUS updateStatus(BATTDATA *batt, BATTPARAMS *params)
 
   return status;
 }
+/*-------Command Messenger----------*/
+void attachCommandCallbacks()
+{
+  // Attach callback methods
+  cmdMessenger.attach(khelp, help);
+  cmdMessenger.attach(kPeriodicReport, setPeriodicReport);
+  cmdMessenger.attach(ksetAvgSamples, setAvgSamples);
+  cmdMessenger.attach(kPeriodicReport, setPeriodicReport);
+  cmdMessenger.attach(ksetCellLowVolts, setCellLowVolts);
+  cmdMessenger.attach(ksetCellHighVolts, setCellHighVolts);
+  cmdMessenger.attach(ksetCellmaxDiff, setCellmaxDiff);
+}
+
+void help()
+{  
+  dlog.flag_PeriodicReportEnable = false;
+  Serial.println(" 0;                     - diese Ausgabe"); 
+  Serial.println(" 1,<setPeriodicReport>  - Live-Daten Spam, 0..10: updates/sec");
+  Serial.println(" 2,<setAvgSamples>      - samples für mittelwerte pro kanal, 0..4096"); 
+  Serial.println(" 3,<setCellLowVolts>    - UVP Einzelzelle[mV], 0: aktueller Wert "); 
+  Serial.println(" 4,<setCellHighVolts>   - OVP Einzelzelle[mV], 0: aktueller Wert "); 
+  Serial.println(" 5,<setCellmaxDiff>     - max. Diff. Batt[mV], 0: aktueller Wert ");
+  Serial.println(" 6,<setAvgSamples>     - max. Diff. Batt[mV], 0: aktueller Wert "); 
+ 
+}
+void setCellLowVolts(){  Serial.println("Help:"); }
+void setCellHighVolts(){  Serial.println("Help:"); }
+void setCellmaxDiff(){  Serial.println("Help:"); }
+void setAvgSamples()
+{ 
+livedata.samplecount = cmdMessenger.readInt16Arg();
+Serial.print("setAvgSamples:");
+Serial.println(livedata.samplecount, DEC);
+};
+
+void setPeriodicReport()
+{ 
+dlog.flag_PeriodicReportEnable = cmdMessenger.readInt16Arg();
+Serial.print("flag_PeriodicReportEnable:");
+Serial.println(dlog.flag_PeriodicReportEnable, DEC);
+};
+
+
+
+
+
