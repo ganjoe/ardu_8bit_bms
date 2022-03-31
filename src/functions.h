@@ -1,9 +1,10 @@
 #include <datatypes.h>
 
-
-BATTPARAMS battery;
-
-RTNCODE measureVoltages (LOGOBJEKT *log);
-void    printLog        (LOGOBJEKT *log);
+RTNCODE calcCellVoltage     (BATTDATA *batt, BATTPARAMS *params);
+RTNCODE avgVoltages         (BATTDATA *log, BATTPARAMS *params);
+RTNCODE scaleCellVoltage    (BATTDATA *batt, BATTPARAMS *params);
+BATTSTAUS updateStatus      (BATTDATA *batt, BATTPARAMS *params);
+void    printLog            (BATTDATA *batt, BATTPARAMS *params);
+unsigned long getVoltage    (int channel);
 
 
