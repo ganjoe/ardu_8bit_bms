@@ -1,3 +1,16 @@
+/*
+Wiederstandswerte für spannungsteiler. Reihe E12
+zweigstrom 100uA normiert auf 1024mV ADC und 4V zelle
+2k7+27k         /   10k
+1k8+68k         /   10k
+10k+100k        /   10k
+150k            /   10k
+10k+180k        /   10k
+560k||390k      /   10k
+270k            /   10k
+1500k||390k     /   10k
+*/
+
 #include <Arduino.h>
 
 typedef struct 
