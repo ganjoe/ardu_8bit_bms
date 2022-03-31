@@ -1,5 +1,5 @@
-/*
-Wiederstandswerte für spannungsteiler. Reihe E12
+/*Wiederstandswerte für spannungsteiler.
+ Reihe E12
 zweigstrom 100uA normiert auf 1024mV ADC und 4V zelle
 2k7+27k         /   10k
 1k8+68k         /   10k
@@ -13,30 +13,44 @@ zweigstrom 100uA normiert auf 1024mV ADC und 4V zelle
 
 #include <Arduino.h>
 
+#define KELVIN  273150  //milli-Kelvin
+
 typedef struct 
 {
-    unsigned int cellcount;
-    unsigned int cell_min_voltage;
-    unsigned int cell_max_voltage;
-    unsigned int cell_min_temperature;
-    unsigned int cell_max_temperature;
+ unsigned long lowest_cell;
+ unsigned long highest_cell;
+ unsigned long diff_cell;
+ unsigned long status;
+}BATTSTAUS;
+
+typedef struct 
+{
+    unsigned long cellcount;
+    unsigned long cell_min_voltage;
+    unsigned long cell_max_voltage;
+    unsigned long cell_min_temperature;
+    unsigned long cell_max_temperature;
+    unsigned long cell_max_diff;
+    unsigned long resFaktor[8];
+    unsigned long hallFaktor[2];
 }BATTPARAMS;
 
 typedef struct 
 {
-    unsigned long cellvoltage[8];
+    unsigned long raw_stringVolts[8];   //gemittelte adc-werte
+    unsigned long raw_CellVolts[8];   //
     unsigned long hallvoltage[2];
     unsigned long temperature[2];
     unsigned long unixtime;
     unsigned long samplecount;
-    /* data */
-}LOGOBJEKT;
+    BATTSTAUS status;
 
-typedef struct 
-{
-    long resFaktor[8];
-    long hallFaktor[2];
-}RESISTOR_CALIBRATION;
+    /* data */
+}BATTDATA;
+
+
+
+
 
 typedef enum 
 {
