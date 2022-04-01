@@ -5,7 +5,8 @@ RTNCODE avgVoltages         (BATTDATA *log, BATTPARAMS *params);
 RTNCODE scaleCellVoltage    (BATTDATA *batt, BATTPARAMS *params);
 BATTSTAUS updateStatus      (BATTDATA *batt, BATTPARAMS *params);
 void    printLog            (BATTDATA *batt, BATTPARAMS *params);
-unsigned long getVoltage    (int channel);
+
+unsigned long getVoltage (int channel);
 
 /*-------Command Messenger----------*/
 void attachCommandCallbacks();

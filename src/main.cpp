@@ -1,17 +1,13 @@
 
 #include <functions.h>
 #include <CmdMessenger.h>
+#include <EEPROMex.h>
+
 
 //#define ARDU10BITADC
 //#define ARDU12BITADC
 //#define ADS111x
 #define TEST
-
-
-BATTPARAMS akku;
-DATALOGGA dlog; 
-BATTDATA livedata;  // die null ist wichtig
-
  
 CmdMessenger cmdMessenger = CmdMessenger(Serial);
 
@@ -23,7 +19,7 @@ void setup() {
   cmdMessenger.printLfCr();   // Adds newline to every command
   attachCommandCallbacks();
   dlog.flag_PeriodicReportEnable = 1;
-  livedata.samplecount =1;
+  livedata.samplecount =2048;
   
   
   akku.cell_max_temperature = 5500;    //in milli-Grad
@@ -65,9 +61,11 @@ void printLog(BATTDATA *log, BATTPARAMS *params)
   if(dlog.flag_PeriodicReportEnable){
   Serial.println("---REPORT: LOGOBJEKT---");
   Serial.println("!!! Type '0;' for help !!!");
+  Serial.print("safegame bytes:");
+  Serial.println(sizeof(akku));
+  Serial.print("Samplecount:");
+  Serial.println(log->samplecount,DEC);
 
-  Serial.print(log->samplecount,DEC);
-  Serial.println(")---");
  
   for (size_t i = 0; i < params->cellcount; i++)
     {
@@ -86,6 +84,8 @@ void printLog(BATTDATA *log, BATTPARAMS *params)
  
 }
 
+/*-------Sensors----------*/
+
 unsigned long getVoltage (int channel)
 {
   #ifdef ARDU10BITADC
@@ -101,6 +101,8 @@ unsigned long getVoltage (int channel)
     return random(3450,3520)*((unsigned int)channel+1);
   #endif
 }
+
+/*-------Calculations----------*/
 
 RTNCODE avgVoltages (BATTDATA *log, BATTPARAMS *params)
 {
@@ -180,6 +182,11 @@ BATTSTAUS updateStatus(BATTDATA *batt, BATTPARAMS *params)
 
   return status;
 }
+
+/*-------Storage----------*/
+
+
+
 /*-------Command Messenger----------*/
 void attachCommandCallbacks()
 {
@@ -208,9 +215,9 @@ void help()
   Serial.println(" 6,<setAvgSamples>     - max. Diff. Batt[mV], 0: aktueller Wert "); 
  
 }
-void setCellLowVolts(){  Serial.println("Help:"); }
-void setCellHighVolts(){  Serial.println("Help:"); }
-void setCellmaxDiff(){  Serial.println("Help:"); }
+void setCellLowVolts()  {  Serial.println("Help:"); }
+void setCellHighVolts() {  Serial.println("Help:"); }
+void setCellmaxDiff()   {  Serial.println("Help:"); }
 void setAvgSamples()
 {
   int temp = cmdMessenger.readInt16Arg();

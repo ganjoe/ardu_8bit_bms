@@ -16,7 +16,7 @@ zweigstrom 100uA normiert auf 1024mV ADC und 4V zelle
 #define KELVIN  273150  //milli-Kelvin
 
 
-enum
+enum COMMANDS
 {
   khelp,                // Command to request list of available commands
   kPeriodicReport, 
@@ -35,7 +35,7 @@ typedef struct
  unsigned long status;
 }BATTSTAUS;
 
-typedef struct 
+typedef struct BATTPARAMS
 {
     unsigned long cellcount;
     unsigned long cell_min_voltage;
@@ -45,7 +45,7 @@ typedef struct
     unsigned long cell_max_diff;
     unsigned long resFaktor[8];
     unsigned long hallFaktor[2];
-}BATTPARAMS;
+};
 
 typedef struct 
 {
@@ -84,3 +84,8 @@ typedef enum
     TIME,   // timeout der peripherie
 }RTNCODE;
 
+
+
+BATTPARAMS akku;
+DATALOGGA dlog; 
+BATTDATA livedata;  // die null ist wichtig
