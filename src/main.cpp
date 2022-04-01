@@ -203,16 +203,23 @@ void attachCommandCallbacks()
 void help()
 {  
   dlog.flag_PeriodicReportEnable = false;
-  Serial.println("");
-  Serial.println(" Argument -1 Zeigt aktuellen Wert ohne änderung an"); 
-  Serial.println(" Temperaturen in grad Kelvin (10-3) angeben");
-  Serial.println(" 0;                     - diese Ausgabe"); 
-  Serial.println(" 1,<setPeriodicReport>  - Live-Daten Spam, 0..10: updates/sec");
-  Serial.println(" 2,<setAvgSamples>      - samples für mittelwerte pro kanal, 1..4096"); 
-  Serial.println(" 3,<setCellLowVolts>    - UVP Einzelzelle[mV], 0: aktueller Wert "); 
-  Serial.println(" 4,<setCellHighVolts>   - OVP Einzelzelle[mV], 0: aktueller Wert "); 
-  Serial.println(" 5,<setCellmaxDiff>     - max. Diff. Batt[mV], 0: aktueller Wert ");
-  Serial.println(" 6,<setAvgSamples>     - max. Diff. Batt[mV], 0: aktueller Wert "); 
+  Serial.println("#######################################################");
+  Serial.println("# Argument 0/-1  zeigt Wert ohne Aenderung an        #"); 
+  Serial.println("# Temperaturen in Kelvin angeben 273 == 0°           #");
+  Serial.println("#######################################################");
+  Serial.println(" 0;                      - diese Ausgabe"); 
+  Serial.println(" 1,<setPeriodicReport>;  - Live-Daten Spam, 0..10: updates/sec");
+  Serial.println(" 2,<setAvgSamples>;      - samples für mittelwerte pro kanal, 1..4096"); 
+  Serial.println(" 3,<setCellLowVolts>;    - UVP Einzelzelle[mV] "); 
+  Serial.println(" 4,<setCellHighVolts>;   - OVP Einzelzelle[mV]"); 
+  Serial.println(" 5,<setCellmaxDiff>;     - max. Diff. Batt[mV]");
+  Serial.println(" 6,<setAvgSamples>;      - max. Diff. Batt[mV]"); 
+  Serial.println("#######################################################");
+  Serial.println("# Der letzte Savegameaufruf setzt die Reset-Defaults  #");
+  Serial.println("#######################################################");
+  Serial.println(" 7,<Save Game>          - Slot 1-3, Parameter speichern"); 
+  Serial.println(" 8,<Load Game>          - Slot 1-3, Parameter laden"); 
+  Serial.println(" 9,<Restore>            - Progmem defaults laden");
  
 }
 void setCellLowVolts()  {  Serial.println("Help:"); }
