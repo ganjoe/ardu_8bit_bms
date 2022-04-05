@@ -2,11 +2,14 @@
 #include <functions.h>
 #include <CmdMessenger.h>
 #include <EEPROMex.h>
+#include <utils_buffer.h>
 
 
 //#define ARDU10BITADC
 //#define ARDU12BITADC
 //#define ADS111x
+#define CONFBUFFER buffer
+#define FLOAT_SCALE 1000000.0
 #define TEST
  
 CmdMessenger cmdMessenger = CmdMessenger(Serial);
@@ -29,17 +32,17 @@ void setup() {
   akku.cell_max_diff = 5;
   akku.cellcount = 8;
 
-  akku.hallFaktor[CURRENT_IN] =  1;
-  akku.hallFaktor[CURRENT_OUT] = 1;
+  akku.hallFaktor[CURRENT_IN] =  1.000001;
+  akku.hallFaktor[CURRENT_OUT] = 1.000002;
 
-  akku.resFaktor[CELL01] = 1L;
-  akku.resFaktor[CELL02] = 1L;
-  akku.resFaktor[CELL03] = 1L;
-  akku.resFaktor[CELL04] = 1L;
-  akku.resFaktor[CELL05] = 1L;
-  akku.resFaktor[CELL06] = 1L;
-  akku.resFaktor[CELL07] = 1L;
-  akku.resFaktor[CELL08] = 1L;
+  akku.resFaktor[CELL01] = 1.000001;
+  akku.resFaktor[CELL02] = 1.000002;
+  akku.resFaktor[CELL03] = 1.000003;
+  akku.resFaktor[CELL04] = 1.000004;
+  akku.resFaktor[CELL05] = 1.000005;
+  akku.resFaktor[CELL06] = 1.000006;
+  akku.resFaktor[CELL07] = 1.000007;
+  akku.resFaktor[CELL08] = 1.000008;
   Serial.print("setup done");
 
 }
@@ -104,11 +107,12 @@ unsigned long getVoltage (int channel)
 
 /*-------Calculations----------*/
 
+
 RTNCODE avgVoltages (BATTDATA *log, BATTPARAMS *params)
 {
 
 for (size_t i = 0; i < log->samplecount; i++)
-{
+{ 
     for (size_t i = 0; i < params->cellcount; i++)
     {
      log->raw_stringVolts[i] += getVoltage(i); 
@@ -183,8 +187,6 @@ BATTSTAUS updateStatus(BATTDATA *batt, BATTPARAMS *params)
   return status;
 }
 
-/*-------Storage----------*/
-
 
 
 /*-------Command Messenger----------*/
@@ -198,6 +200,7 @@ void attachCommandCallbacks()
   cmdMessenger.attach(ksetCellLowVolts, setCellLowVolts);
   cmdMessenger.attach(ksetCellHighVolts, setCellHighVolts);
   cmdMessenger.attach(ksetCellmaxDiff, setCellmaxDiff);
+  cmdMessenger.attach(kSaveGame, SaveGame);
 }
 
 void help()
@@ -222,13 +225,14 @@ void help()
   Serial.println(" 9,<Restore>            - Progmem defaults laden");
  
 }
-void setCellLowVolts()  {  Serial.println("Help:"); }
-void setCellHighVolts() {  Serial.println("Help:"); }
-void setCellmaxDiff()   {  Serial.println("Help:"); }
+void setCellLowVolts()  {  Serial.println("setCellLowVolts:"); }
+void setCellHighVolts() {  Serial.println("setCellHighVolts:"); }
+void setCellmaxDiff()   {  Serial.println("setCellmaxDiff:"); }
+
 void setAvgSamples()
 {
   int temp = cmdMessenger.readInt16Arg();
-  if (temp==-1)
+  if (temp==0)
   {
     Serial.print("setAvgSamples:");
     Serial.println(livedata.samplecount, DEC);
@@ -240,7 +244,6 @@ void setAvgSamples()
     Serial.println(livedata.samplecount, DEC);
   }
 };
-
 void setPeriodicReport()
 { 
 dlog.flag_PeriodicReportEnable = cmdMessenger.readInt16Arg();
@@ -248,7 +251,42 @@ Serial.print("flag_PeriodicReportEnable:");
 Serial.println(dlog.flag_PeriodicReportEnable, DEC);
 };
 
+/*------Storage------------*/
+void SaveGame()
+{
+ 
+  int pos = cmdMessenger.readInt16Arg();
+  int size = sizeof(CONFBUFFER);
+  int offset = size * pos;
+  Serial.print("Save Config (");Serial.print(size,DEC);Serial.print("bytes) ");
+  Serial.print("byte offset: "); Serial.println(offset, DEC);
 
+}
+
+
+
+int confgenMultiplaxParams(BATTPARAMS *batt, uint8_t* buffer)
+{
+  int32_t ind = 0;
+  buffer_append_int32(buffer,batt->cellcount ,&ind);
+  buffer_append_int32(buffer,batt->cell_min_voltage ,&ind);
+  buffer_append_int32(buffer,batt->cell_max_voltage ,&ind);
+  buffer_append_int32(buffer,batt->cell_min_temperature ,&ind);
+  buffer_append_int32(buffer,batt->cell_max_temperature ,&ind);
+  buffer_append_int32(buffer,batt->cell_max_diff ,&ind);
+  buffer_append_float16(buffer,batt->resFaktor[0] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->resFaktor[1] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->resFaktor[2] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->resFaktor[3] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->resFaktor[4] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->resFaktor[5] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->resFaktor[6] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->resFaktor[7] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->hallFaktor[0] ,FLOAT_SCALE,&ind);
+  buffer_append_float16(buffer,batt->hallFaktor[1] ,FLOAT_SCALE,&ind);
+  return sizeof(buffer);
+  //5.4.22
+}
 
 
 

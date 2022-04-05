@@ -24,6 +24,9 @@ enum COMMANDS
   ksetCellLowVolts,      // Command to request led to be set in specific state  
   ksetCellHighVolts,     // Command to request led to be set in to specific brightness  
   ksetCellmaxDiff,       // Command to request led status
+  kSaveGame,
+  kLoadGame,
+  kLoadDefaults,
   
 };
 
@@ -89,3 +92,5 @@ typedef enum
 BATTPARAMS akku;
 DATALOGGA dlog; 
 BATTDATA livedata;  // die null ist wichtig
+
+uint8_t buffer[sizeof(BATTPARAMS)];
