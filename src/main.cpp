@@ -1,7 +1,7 @@
 
 #include <functions.h>
 #include <CmdMessenger.h>
-#include <EEPROMex.h>
+#include <EEPROM.h>
 #include <utils_buffer.h>
 
 
@@ -260,6 +260,13 @@ void SaveGame()
   int offset = size * pos;
   Serial.print("Save Config (");Serial.print(size,DEC);Serial.print("bytes) ");
   Serial.print("byte offset: "); Serial.println(offset, DEC);
+  for (size_t i = 0; i < size; i++)
+  {
+    EEPROM.put(i+offset,&CONFBUFFER[i]);
+  }
+  
+  
+ 
 
 }
 
