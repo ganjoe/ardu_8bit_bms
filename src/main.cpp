@@ -9,7 +9,8 @@
 //#define ARDU12BITADC
 //#define ADS111x
 #define CONFBUFFER buffer
-#define FLOAT_SCALE 1000000.0
+#define FLOAT_SCALE 100.0
+#define PRINTPREC 6
 #define TEST
  
 CmdMessenger cmdMessenger = CmdMessenger(Serial);
@@ -18,31 +19,31 @@ void setup() {
  
 
   //analogReference(INTERNAL2V56);  // a built-in 2.56V reference (Arduino Mega only) 
-  Serial.begin(9600);
+  Serial.begin(115200);
   cmdMessenger.printLfCr();   // Adds newline to every command
   attachCommandCallbacks();
   dlog.flag_PeriodicReportEnable = 1;
   livedata.samplecount =2048;
   
   
-  akku.cell_max_temperature = 5500;    //in milli-Grad
-  akku.cell_min_temperature = -0500;
+  akku.cell_max_temperature = (55.123456  );    //in milli-Grad
+  akku.cell_min_temperature = (5.123456  );
   akku.cell_min_voltage = 3000;        //in milli-Volts
   akku.cell_max_voltage = 3500;
   akku.cell_max_diff = 5;
   akku.cellcount = 8;
 
-  akku.hallFaktor[CURRENT_IN] =  1.000001;
-  akku.hallFaktor[CURRENT_OUT] = 1.000002;
+  akku.hallFaktor[CURRENT_IN] =  1.0001;
+  akku.hallFaktor[CURRENT_OUT] = 1.0002;
 
-  akku.resFaktor[CELL01] = 1.000001;
-  akku.resFaktor[CELL02] = 1.000002;
-  akku.resFaktor[CELL03] = 1.000003;
-  akku.resFaktor[CELL04] = 1.000004;
-  akku.resFaktor[CELL05] = 1.000005;
-  akku.resFaktor[CELL06] = 1.000006;
-  akku.resFaktor[CELL07] = 1.000007;
-  akku.resFaktor[CELL08] = 1.000008;
+  akku.resFaktor[CELL01] = (1.01  );
+  akku.resFaktor[CELL02] =  (1.02  );
+  akku.resFaktor[CELL03] =  (1.03  );
+  akku.resFaktor[CELL04] =  (1.04  );
+  akku.resFaktor[CELL05] =  (1.05  );
+  akku.resFaktor[CELL06] =  (1.06  );
+  akku.resFaktor[CELL07] =  (1.07  );
+  akku.resFaktor[CELL08] =  (1.08 );
   Serial.print("setup done");
 
 }
@@ -79,10 +80,10 @@ void printLog(BATTDATA *log, BATTPARAMS *params)
     }
     BATTSTAUS status = {0};
      status =updateStatus(log, params);
-     Serial.print("lowest Cell:");  Serial.println(status.lowest_cell, DEC);
-     Serial.print("highest Cell:"); Serial.println(status.highest_cell, DEC);
-     Serial.print("diff cell:");    Serial.println(status.diff_cell, DEC);
-     Serial.print("enable:");       Serial.println(status.status, DEC);
+     Serial.print("lowest Cell:");  Serial.println(status.lowest_cell );
+     Serial.print("highest Cell:"); Serial.println(status.highest_cell);
+     Serial.print("diff cell:");    Serial.println(status.diff_cell);
+     Serial.print("enable:");       Serial.println(status.status);
   }
  
 }
@@ -146,7 +147,7 @@ RTNCODE scaleCellVoltage(BATTDATA *batt, BATTPARAMS *params)
 {
   for (size_t i = 0; i < params->cellcount; i++)
   {
-    batt->raw_CellVolts[i] *= params->resFaktor[i];
+    //batt->raw_CellVolts[i] *= params->resFaktor[i];
   }
 return OK;
 }
@@ -201,6 +202,7 @@ void attachCommandCallbacks()
   cmdMessenger.attach(ksetCellHighVolts, setCellHighVolts);
   cmdMessenger.attach(ksetCellmaxDiff, setCellmaxDiff);
   cmdMessenger.attach(kSaveGame, SaveGame);
+  cmdMessenger.attach(kShowConfig,ShowConfig);
 }
 
 void help()
@@ -216,13 +218,13 @@ void help()
   Serial.println(" 3,<setCellLowVolts>;    - UVP Einzelzelle[mV] "); 
   Serial.println(" 4,<setCellHighVolts>;   - OVP Einzelzelle[mV]"); 
   Serial.println(" 5,<setCellmaxDiff>;     - max. Diff. Batt[mV]");
-  Serial.println(" 6,<setAvgSamples>;      - max. Diff. Batt[mV]"); 
   Serial.println("#######################################################");
   Serial.println("# Der letzte Savegameaufruf setzt die Reset-Defaults  #");
   Serial.println("#######################################################");
-  Serial.println(" 7,<Save Game>          - Slot 1-3, Parameter speichern"); 
-  Serial.println(" 8,<Load Game>          - Slot 1-3, Parameter laden"); 
-  Serial.println(" 9,<Restore>            - Progmem defaults laden");
+  Serial.println(" 6,<Save Config>          - Slot 1-3, Parameter speichern"); 
+  Serial.println(" 7,<Load Config>          - Slot 1-3, Parameter laden"); 
+  Serial.println(" 8,<Restore Config>       - Progmem defaults laden");
+  Serial.println(" 9,<Show Config>          - aktive Konfig listen");
  
 }
 void setCellLowVolts()  {  Serial.println("setCellLowVolts:"); }
@@ -254,43 +256,103 @@ Serial.println(dlog.flag_PeriodicReportEnable, DEC);
 /*------Storage------------*/
 void SaveGame()
 {
- 
-  int pos = cmdMessenger.readInt16Arg();
-  int size = sizeof(CONFBUFFER);
+  
+  int pos = 0;
+  pos = cmdMessenger.readInt16Arg();
+  size_t size = sizeof(CONFBUFFER);
   int offset = size * pos;
   Serial.print("Save Config (");Serial.print(size,DEC);Serial.print("bytes) ");
   Serial.print("byte offset: "); Serial.println(offset, DEC);
-  for (size_t i = 0; i < size; i++)
-  {
-    EEPROM.put(i+offset,&CONFBUFFER[i]);
+
+  confgenReport(&akku);
+  confgenMultiplaxParams(&akku, CONFBUFFER);
+
+  for (size_t i = 0; i < size; i++)  
+  {    
+    EEPROM.write(i+offset,CONFBUFFER[i]);     
   }
+   for (size_t i = 0; i < size; i++)  
+  {    
+    CONFBUFFER[i]=EEPROM.read(i+offset);     
+  }
+
+
+  confgenDemultiplaxParams(&akku, CONFBUFFER);
+ // for (size_t i = 0; i < size; i++)  {    Serial.print(CONFBUFFER[i],HEX);      }
+  Serial.println();
+  confgenReport(&akku);
   
-  
- 
 
 }
+void ShowConfig()
+{
+  confgenReport(&akku);
+}
 
+void confgenReport(BATTPARAMS *thisbatt)
+{
+  Serial.print("batt->cellcount:");             Serial.println(thisbatt->cellcount,DEC);
+  Serial.print("batt->cell_min_voltage:");      Serial.println(thisbatt->cell_min_voltage,DEC);
+  Serial.print("batt->cell_max_voltage:");      Serial.println(thisbatt->cell_max_voltage,DEC);
+  Serial.print("batt->cell_min_temperature:");  Serial.println(thisbatt->cell_min_temperature,PRINTPREC);
+  Serial.print("batt->cell_max_temperature:");  Serial.println(thisbatt->cell_max_temperature,PRINTPREC);
+  Serial.print("batt->cell_max_diff:");         Serial.println(thisbatt->cell_max_diff,DEC);
+  Serial.print("batt->resFaktor[CELL01]:");     Serial.println(thisbatt->resFaktor[CELL01],PRINTPREC);
+  Serial.print("batt->resFaktor[CELL02]:");     Serial.println(thisbatt->resFaktor[CELL02],PRINTPREC);
+  Serial.print("batt->resFaktor[CELL03]:");     Serial.println(thisbatt->resFaktor[CELL03],PRINTPREC);
+  Serial.print("batt->resFaktor[CELL04]:");     Serial.println(thisbatt->resFaktor[CELL04],PRINTPREC);
+  Serial.print("batt->resFaktor[CELL05]:");     Serial.println(thisbatt->resFaktor[CELL05],PRINTPREC);
+  Serial.print("batt->resFaktor[CELL06]:");     Serial.println(thisbatt->resFaktor[CELL06],PRINTPREC);
+  Serial.print("batt->resFaktor[CELL07]:");     Serial.println(thisbatt->resFaktor[CELL07],PRINTPREC);
+  Serial.print("batt->resFaktor[CELL08]:");     Serial.println(thisbatt->resFaktor[CELL08],PRINTPREC);
+  Serial.print("batt->resFaktor[CURRENT_IN]:"); Serial.println(thisbatt->hallFaktor[CURRENT_IN],DEC);
+  Serial.print("batt->resFaktor[CURRENT_OUT]:");Serial.println(thisbatt->hallFaktor[CURRENT_OUT],DEC);
+}
 
-
-int confgenMultiplaxParams(BATTPARAMS *batt, uint8_t* buffer)
+int confgenMultiplaxParams(BATTPARAMS *thisbatt, uint8_t* buffer)
 {
   int32_t ind = 0;
-  buffer_append_int32(buffer,batt->cellcount ,&ind);
-  buffer_append_int32(buffer,batt->cell_min_voltage ,&ind);
-  buffer_append_int32(buffer,batt->cell_max_voltage ,&ind);
-  buffer_append_int32(buffer,batt->cell_min_temperature ,&ind);
-  buffer_append_int32(buffer,batt->cell_max_temperature ,&ind);
-  buffer_append_int32(buffer,batt->cell_max_diff ,&ind);
-  buffer_append_float16(buffer,batt->resFaktor[0] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->resFaktor[1] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->resFaktor[2] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->resFaktor[3] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->resFaktor[4] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->resFaktor[5] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->resFaktor[6] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->resFaktor[7] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->hallFaktor[0] ,FLOAT_SCALE,&ind);
-  buffer_append_float16(buffer,batt->hallFaktor[1] ,FLOAT_SCALE,&ind);
+  buffer_append_int32     (buffer,thisbatt->cellcount ,&ind);
+  buffer_append_int32     (buffer,thisbatt->cell_min_voltage ,&ind);
+  buffer_append_int32     (buffer,thisbatt->cell_max_voltage ,&ind);
+  buffer_append_int32     (buffer,thisbatt->cell_max_diff ,&ind);
+  buffer_append_float16   (buffer,thisbatt->cell_min_temperature,FLOAT_SCALE ,&ind);
+  buffer_append_float16   (buffer,thisbatt->cell_max_temperature,FLOAT_SCALE ,&ind);
+  buffer_append_float16   (buffer,thisbatt->resFaktor[CELL01] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->resFaktor[CELL02] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->resFaktor[CELL03] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->resFaktor[CELL04] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->resFaktor[CELL05] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->resFaktor[CELL06] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->resFaktor[CELL07] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->resFaktor[CELL08] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->hallFaktor[CURRENT_IN] ,FLOAT_SCALE,&ind);
+  buffer_append_float16   (buffer,thisbatt->hallFaktor[CURRENT_OUT] ,FLOAT_SCALE,&ind);
+  return sizeof(buffer);
+  //5.4.22
+}
+
+int confgenDemultiplaxParams(BATTPARAMS *thisbatt, uint8_t* buffer)
+{
+  int32_t ind = 0;
+  thisbatt->cellcount =             buffer_get_int32(buffer, &ind);
+  thisbatt->cell_min_voltage =      buffer_get_int32(buffer, &ind);
+  thisbatt->cell_max_voltage =      buffer_get_int32(buffer, &ind);
+  thisbatt->cell_max_diff =         buffer_get_int32(buffer, &ind);
+  thisbatt->cell_min_temperature =  buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->cell_max_temperature =  buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->resFaktor[0] =          buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->resFaktor[1] =          buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->resFaktor[2] =          buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->resFaktor[3] =          buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->resFaktor[4] =          buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->resFaktor[5] =          buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->resFaktor[6] =          buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->resFaktor[7] =          buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->hallFaktor[0] =         buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+  thisbatt->hallFaktor[1] =         buffer_get_float16(buffer,FLOAT_SCALE, &ind);
+
+ 
   return sizeof(buffer);
   //5.4.22
 }

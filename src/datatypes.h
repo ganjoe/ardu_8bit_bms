@@ -27,6 +27,7 @@ enum COMMANDS
   kSaveGame,
   kLoadGame,
   kLoadDefaults,
+  kShowConfig,
   
 };
 
@@ -38,17 +39,17 @@ typedef struct
  unsigned long status;
 }BATTSTAUS;
 
-typedef struct BATTPARAMS
+typedef struct 
 {
-    unsigned long cellcount;
-    unsigned long cell_min_voltage;
-    unsigned long cell_max_voltage;
-    unsigned long cell_min_temperature;
-    unsigned long cell_max_temperature;
-    unsigned long cell_max_diff;
-    unsigned long resFaktor[8];
+    unsigned long   cellcount;
+    unsigned long   cell_min_voltage;
+    unsigned long   cell_max_voltage;
+    unsigned long   cell_max_diff;
+    float           cell_min_temperature;
+    float           cell_max_temperature;
+    float           resFaktor[8];
     unsigned long hallFaktor[2];
-};
+}BATTPARAMS;
 
 typedef struct 
 {

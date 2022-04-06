@@ -18,11 +18,13 @@ void setCellLowVolts();
 void setCellHighVolts();
 void setCellmaxDiff();
 void SaveGame();
+void ShowConfig();
 
 /*------Storage------------*/
 int confgenSaveGame(uint8_t* buffer, int pos);
 int confgenMultiplaxParams(BATTPARAMS *batt, uint8_t* buffer);
-
+int confgenDemultiplaxParams(BATTPARAMS *batt, uint8_t* buffer);
+void confgenReport(BATTPARAMS *batt);
 
 
 
