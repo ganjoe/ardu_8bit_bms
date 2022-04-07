@@ -21,6 +21,7 @@ void setCellLowVolts();
 void setCellHighVolts();
 void setCellmaxDiff();
 void SaveGame();
+void LoadGame();
 void ShowConfig();
 
 /*------Storage------------*/

@@ -20,6 +20,7 @@ void attachCommandCallbacks()
   cmdMessenger.attach(ksetCellHighVolts, setCellHighVolts);
   cmdMessenger.attach(ksetCellmaxDiff, setCellmaxDiff);
   cmdMessenger.attach(kSaveGame, SaveGame);
+  cmdMessenger.attach(kLoadGame, LoadGame);
   cmdMessenger.attach(kShowConfig,ShowConfig);
 }
 
@@ -28,7 +29,7 @@ void help()
   dlog.flag_PeriodicReportEnable = false;
   Serial.println("#######################################################");
   Serial.println("# Argument 0/-1  zeigt Wert ohne Aenderung an        #"); 
-  Serial.println("# Temperaturen in Kelvin angeben 273 == 0°           #");
+  Serial.println("# Temperaturen in Grad mit Vorzeichen                #");
   Serial.println("#######################################################");
   Serial.println(" 0;                      - diese Ausgabe"); 
   Serial.println(" 1,<setPeriodicReport>;  - Live-Daten Spam, 0..10: updates/sec");
@@ -37,12 +38,12 @@ void help()
   Serial.println(" 4,<setCellHighVolts>;   - OVP Einzelzelle[mV]"); 
   Serial.println(" 5,<setCellmaxDiff>;     - max. Diff. Batt[mV]");
   Serial.println("#######################################################");
-  Serial.println("# Der letzte Savegameaufruf setzt die Reset-Defaults  #");
+  Serial.println("# Savegame 0 sind die Reset-Defaults !!               #");
   Serial.println("#######################################################");
-  Serial.println(" 6,<Save Config>          - Slot 1-3, Parameter speichern"); 
-  Serial.println(" 7,<Load Config>          - Slot 1-3, Parameter laden"); 
-  Serial.println(" 8,<Restore Config>       - Progmem defaults laden");
-  Serial.println(" 9,<Show Config>          - aktive Konfig listen");
+  Serial.println(" 6,<Save Config>          - Slot 0-4 Parameter speichern"); 
+  Serial.println(" 7,<Load Config>          - Slot 0-4, Parameter laden"); 
+  Serial.println(" 8,<Restore Config>       - Factory defaults laden");
+  Serial.println(" 9,<Show Config>          - Slot 0-4");
  
 }
 void setCellLowVolts()  {  Serial.println("setCellLowVolts:"); }
@@ -81,27 +82,48 @@ void SaveGame()
   int offset = size * pos;
   Serial.print("Save Config (");Serial.print(size,DEC);Serial.print("bytes) ");
   Serial.print("byte offset: "); Serial.println(offset, DEC);
+  Serial.println);
 
-  confgenReport(&akku);
+ // confgenReport(&akku);
   confgenMultiplaxParams(&akku, CONFBUFFER);
 
   for (size_t i = 0; i < size; i++)  
   {    
     EEPROM.write(i+offset,CONFBUFFER[i]);     
   }
+
    for (size_t i = 0; i < size; i++)  
   {    
     CONFBUFFER[i]=EEPROM.read(i+offset);     
   }
 
-
-  confgenDemultiplaxParams(&akku, CONFBUFFER);
- // for (size_t i = 0; i < size; i++)  {    Serial.print(CONFBUFFER[i],HEX);      }
-  Serial.println();
-  confgenReport(&akku);
+ // confgenDemultiplaxParams(&akku, CONFBUFFER);
+  for (size_t i = 0; i < size; i++)  {    Serial.print(CONFBUFFER[i],HEX);      }
+  Serial.println("..done");
+  //confgenReport(&akku);
   
-
 }
+void LoadGame()
+{
+int pos = cmdMessenger.readInt16Arg();
+size_t size = sizeof(CONFBUFFER);
+int offset = size * pos;
+Serial.print("Load Config from Offset:");
+Serial.println(offset);
+
+//BATTPARAMS testakku = {0};
+
+   for (size_t i = 0; i < size; i++)  
+  {    
+    CONFBUFFER[i]=EEPROM.read(i+offset);     
+  }
+  confgenDemultiplaxParams(&akku, CONFBUFFER);
+  for (size_t i = 0; i < size; i++)  
+  {    Serial.print(CONFBUFFER[i],HEX);}
+  Serial.println();
+  Serial.println("..done");
+}
+
 void ShowConfig()
 {
   confgenReport(&akku);
