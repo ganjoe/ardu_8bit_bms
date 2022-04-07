@@ -1,3 +1,6 @@
+#ifndef functions_h
+#define functions_h
+
 #include <datatypes.h>
 
 RTNCODE calcCellVoltage     (BATTDATA *batt, BATTPARAMS *params);
@@ -25,6 +28,8 @@ int confgenSaveGame(uint8_t* buffer, int pos);
 int confgenMultiplaxParams(BATTPARAMS *batt, uint8_t* buffer);
 int confgenDemultiplaxParams(BATTPARAMS *batt, uint8_t* buffer);
 void confgenReport(BATTPARAMS *batt);
+
+#endif
 
 
 

@@ -11,9 +11,17 @@ zweigstrom 100uA normiert auf 1024mV ADC und 4V zelle
 1500k||390k     /   10k
 */
 
+
+#ifndef _datatypes_h
+#define _datatypes_h
 #include <Arduino.h>
+#include <fp64lib.h>
 
 #define KELVIN  273150  //milli-Kelvin
+#define FLOAT_SCALE 100.0
+#define PRINTPREC 6
+#define BTUART Serial
+#define CONFBUFFER buffer
 
 
 enum COMMANDS
@@ -93,5 +101,6 @@ typedef enum
 BATTPARAMS akku;
 DATALOGGA dlog; 
 BATTDATA livedata;  // die null ist wichtig
-
 uint8_t buffer[sizeof(BATTPARAMS)];
+
+#endif
