@@ -64,11 +64,11 @@ void loop()
 void printLog(BATTDATA *log, BATTPARAMS *params)
 {
   if(dlog.flag_PeriodicReportEnable){
-  Serial.println("---REPORT: LOGOBJEKT---");
-  Serial.println("!!! Type '0;' for help !!!");
-  Serial.print("safegame bytes:");
+  Serial.println(F("---REPORT: LOGOBJEKT---"));
+  Serial.println(F("!!! Type '0;' for help !!!"));
+  Serial.print(F("safegame bytes:"));
   Serial.println(sizeof(akku));
-  Serial.print("Samplecount:");
+  Serial.print(F("Samplecount:"));
   Serial.println(log->samplecount,DEC);
 
  
@@ -81,10 +81,10 @@ void printLog(BATTDATA *log, BATTPARAMS *params)
     }
     BATTSTAUS status = {0};
      status =updateStatus(log, params);
-     Serial.print("lowest Cell:");  Serial.println(status.lowest_cell );
-     Serial.print("highest Cell:"); Serial.println(status.highest_cell);
-     Serial.print("diff cell:");    Serial.println(status.diff_cell);
-     Serial.print("enable:");       Serial.println(status.status);
+     Serial.print(F("lowest Cell:"));  Serial.println(status.lowest_cell );
+     Serial.print(F("highest Cell:")); Serial.println(status.highest_cell);
+     Serial.print(F("diff cell:"));    Serial.println(status.diff_cell);
+     Serial.print(F("enable:"));       Serial.println(status.status);
   }
  
 }

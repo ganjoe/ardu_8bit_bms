@@ -6,22 +6,22 @@
 
 void confgenReport(BATTPARAMS *thisbatt)
 {
-  Serial.print("batt->cellcount:");             Serial.println(thisbatt->cellcount,DEC);
-  Serial.print("batt->cell_min_voltage:");      Serial.println(thisbatt->cell_min_voltage,DEC);
-  Serial.print("batt->cell_max_voltage:");      Serial.println(thisbatt->cell_max_voltage,DEC);
-  Serial.print("batt->cell_min_temperature:");  Serial.println(thisbatt->cell_min_temperature,PRINTPREC);
-  Serial.print("batt->cell_max_temperature:");  Serial.println(thisbatt->cell_max_temperature,PRINTPREC);
-  Serial.print("batt->cell_max_diff:");         Serial.println(thisbatt->cell_max_diff,DEC);
-  Serial.print("batt->resFaktor[CELL01]:");     Serial.println(thisbatt->resFaktor[CELL01],PRINTPREC);
-  Serial.print("batt->resFaktor[CELL02]:");     Serial.println(thisbatt->resFaktor[CELL02],PRINTPREC);
-  Serial.print("batt->resFaktor[CELL03]:");     Serial.println(thisbatt->resFaktor[CELL03],PRINTPREC);
-  Serial.print("batt->resFaktor[CELL04]:");     Serial.println(thisbatt->resFaktor[CELL04],PRINTPREC);
-  Serial.print("batt->resFaktor[CELL05]:");     Serial.println(thisbatt->resFaktor[CELL05],PRINTPREC);
-  Serial.print("batt->resFaktor[CELL06]:");     Serial.println(thisbatt->resFaktor[CELL06],PRINTPREC);
-  Serial.print("batt->resFaktor[CELL07]:");     Serial.println(thisbatt->resFaktor[CELL07],PRINTPREC);
-  Serial.print("batt->resFaktor[CELL08]:");     Serial.println(thisbatt->resFaktor[CELL08],PRINTPREC);
-  Serial.print("batt->resFaktor[CURRENT_IN]:"); Serial.println(thisbatt->hallFaktor[CURRENT_IN],DEC);
-  Serial.print("batt->resFaktor[CURRENT_OUT]:");Serial.println(thisbatt->hallFaktor[CURRENT_OUT],DEC);
+  Serial.print(F("batt->cellcount:"));             Serial.println(thisbatt->cellcount,DEC);
+  Serial.print(F("batt->cell_min_voltage:"));      Serial.println(thisbatt->cell_min_voltage,DEC);
+  Serial.print(F("batt->cell_max_voltage:"));      Serial.println(thisbatt->cell_max_voltage,DEC);
+  Serial.print(F("batt->cell_min_temperature:"));  Serial.println(thisbatt->cell_min_temperature,PRINTPREC);
+  Serial.print(F("batt->cell_max_temperature:"));  Serial.println(thisbatt->cell_max_temperature,PRINTPREC);
+  Serial.print(F("batt->cell_max_diff:"));         Serial.println(thisbatt->cell_max_diff,DEC);
+  Serial.print(F("batt->resFaktor[CELL01]:"));     Serial.println(thisbatt->resFaktor[CELL01],PRINTPREC);
+  Serial.print(F("batt->resFaktor[CELL02]:"));     Serial.println(thisbatt->resFaktor[CELL02],PRINTPREC);
+  Serial.print(F("batt->resFaktor[CELL03]:"));     Serial.println(thisbatt->resFaktor[CELL03],PRINTPREC);
+  Serial.print(F("batt->resFaktor[CELL04]:"));     Serial.println(thisbatt->resFaktor[CELL04],PRINTPREC);
+  Serial.print(F("batt->resFaktor[CELL05]:"));     Serial.println(thisbatt->resFaktor[CELL05],PRINTPREC);
+  Serial.print(F("batt->resFaktor[CELL06]:"));     Serial.println(thisbatt->resFaktor[CELL06],PRINTPREC);
+  Serial.print(F("batt->resFaktor[CELL07]:"));     Serial.println(thisbatt->resFaktor[CELL07],PRINTPREC);
+  Serial.print(F("batt->resFaktor[CELL08]:"));     Serial.println(thisbatt->resFaktor[CELL08],PRINTPREC);
+  Serial.print(F("batt->resFaktor[CURRENT_IN]:")); Serial.println(thisbatt->hallFaktor[CURRENT_IN],DEC);
+  Serial.print(F("batt->resFaktor[CURRENT_OUT]:"));Serial.println(thisbatt->hallFaktor[CURRENT_OUT],DEC);
 }
 
 int confgenMultiplaxParams(BATTPARAMS *thisbatt, uint8_t* buffer)
