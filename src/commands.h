@@ -20,8 +20,9 @@ void attachCommandCallbacks()
   cmdMessenger.attach(ksetCellHighVolts, setCellHighVolts);
   cmdMessenger.attach(ksetCellmaxDiff, setCellmaxDiff);
   cmdMessenger.attach(kSaveGame, SaveGame);
-  cmdMessenger.attach(kLoadGame, LoadGame);
+  cmdMessenger.attach(kLoadGame, cmdLoadGame);
   cmdMessenger.attach(kShowConfig,ShowConfig);
+  cmdMessenger.attach(kLoadDefaults,LoadDefaults);
 }
 
 void help()
@@ -42,7 +43,7 @@ void help()
   Serial.println(F("#######################################################"));
   Serial.println(F(" 6,<Save Config>          - Slot 0-4 Parameter speichern")); 
   Serial.println(F(" 7,<Load Config>          - Slot 0-4, Parameter laden")); 
-  Serial.println(F(" 8,<Restore Config>       - Factory defaults laden"));
+  Serial.println(F(" 8,<Load Defaults>       - Factory defaults laden"));
   Serial.println(F(" 9,<Show Config>          - Slot 0-4"));
  
 }
@@ -103,27 +104,13 @@ void SaveGame()
   //confgenReport(&akku);
   
 }
-void LoadGame()
+void cmdLoadGame(){LoadGame(cmdMessenger.readInt16Arg());}
+void LoadDefaults()
 {
-int pos = cmdMessenger.readInt16Arg();
-size_t size = sizeof(CONFBUFFER);
-int offset = size * pos;
-Serial.print(F("Load Config from Offset:"));
-Serial.println(offset);
-
-//BATTPARAMS testakku = {0};
-
-   for (size_t i = 0; i < size; i++)  
-  {    
-    CONFBUFFER[i]=EEPROM.read(i+offset);     
-  }
-  confgenDemultiplaxParams(&akku, CONFBUFFER);
-  for (size_t i = 0; i < size; i++)  
-  {    Serial.print(CONFBUFFER[i],HEX);}
-  Serial.println();
-  Serial.println(F("..done"));
+  confgenLoadDefaults(&akku);
+  Serial.print(F("Load Defaults from Progmem:"));
+  ShowConfig();
 }
-
 void ShowConfig()
 {
   confgenReport(&akku);

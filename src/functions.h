@@ -13,7 +13,6 @@ unsigned long getVoltage (int channel);
 
 /*-------Command Messenger----------*/
 void attachCommandCallbacks();
-
 void help();
 void setPeriodicReport();
 void setAvgSamples();
@@ -21,13 +20,15 @@ void setCellLowVolts();
 void setCellHighVolts();
 void setCellmaxDiff();
 void SaveGame();
-void LoadGame();
+void cmdLoadGame();
 void ShowConfig();
+void LoadDefaults();
 
 /*------Storage------------*/
 int confgenSaveGame(uint8_t* buffer, int pos);
 int confgenMultiplaxParams(BATTPARAMS *batt, uint8_t* buffer);
 int confgenDemultiplaxParams(BATTPARAMS *batt, uint8_t* buffer);
+void confgenLoadDefaults(BATTPARAMS *batt);
 void confgenReport(BATTPARAMS *batt);
 
 #endif

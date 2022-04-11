@@ -36,6 +36,7 @@ enum COMMANDS
   kLoadGame,
   kLoadDefaults,
   kShowConfig,
+
   
 };
 
@@ -57,6 +58,7 @@ typedef struct
     float           cell_max_temperature;
     float           resFaktor[8];
     unsigned long hallFaktor[2];
+    unsigned long samplecount; 
 }BATTPARAMS;
 
 typedef struct 

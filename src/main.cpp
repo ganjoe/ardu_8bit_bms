@@ -25,27 +25,8 @@ void setup() {
   attachCommandCallbacks();
   dlog.flag_PeriodicReportEnable = 1;
   livedata.samplecount =2048;
-  
-  
-  akku.cell_max_temperature = (55.123456  );    //in milli-Grad
-  akku.cell_min_temperature = (5.123456  );
-  akku.cell_min_voltage = 3000;        //in milli-Volts
-  akku.cell_max_voltage = 3500;
-  akku.cell_max_diff = 5;
-  akku.cellcount = 8;
-
-  akku.hallFaktor[CURRENT_IN] =  1.0001;
-  akku.hallFaktor[CURRENT_OUT] = 1.0002;
-
-  akku.resFaktor[CELL01] = (1.00001  );
-  akku.resFaktor[CELL02] =  (1.02  );
-  akku.resFaktor[CELL03] =  (1.03  );
-  akku.resFaktor[CELL04] =  (1.04  );
-  akku.resFaktor[CELL05] =  (1.05  );
-  akku.resFaktor[CELL06] =  (1.06  );
-  akku.resFaktor[CELL07] =  (1.07  );
-  akku.resFaktor[CELL08] =  (1.08 );
-  Serial.print("setup done");
+  LoadGame(0);
+  Serial.println("setup done");
 
 }
 
@@ -69,7 +50,7 @@ void printLog(BATTDATA *log, BATTPARAMS *params)
   Serial.print(F("safegame bytes:"));
   Serial.println(sizeof(akku));
   Serial.print(F("Samplecount:"));
-  Serial.println(log->samplecount,DEC);
+  Serial.println(params->samplecount,DEC);
 
  
   for (size_t i = 0; i < params->cellcount; i++)
@@ -113,7 +94,7 @@ unsigned long getVoltage (int channel)
 RTNCODE avgVoltages (BATTDATA *log, BATTPARAMS *params)
 {
 
-for (size_t i = 0; i < log->samplecount; i++)
+for (size_t i = 0; i < params->samplecount; i++)
 { 
     for (size_t i = 0; i < params->cellcount; i++)
     {
@@ -128,7 +109,7 @@ for (size_t i = 0; i < params->cellcount; i++)
   wird stringVolts vorher auf 0 gesetzt entfällt +1
   ohne "+1" muss auch die 0 alls illegaler wert abgefangen werden
   */
-    log->raw_stringVolts[i] /= log->samplecount +1;
+    log->raw_stringVolts[i] /= params->samplecount +1;
 }
 
 return OK;
