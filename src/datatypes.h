@@ -29,9 +29,9 @@ enum COMMANDS
   khelp,                // Command to request list of available commands
   kPeriodicReport, 
   ksetAvgSamples,
-  ksetCellLowVolts,      // Command to request led to be set in specific state  
-  ksetCellHighVolts,     // Command to request led to be set in to specific brightness  
-  ksetCellmaxDiff,       // Command to request led status
+  ksetLowHighDiff,      // Command to request led to be set in specific state  
+  ksetTempLowHigh,     // Command to request led to be set in to specific brightness  
+  ksetAdcScaler,       // Command to request led status
   kSaveGame,
   kLoadGame,
   kLoadDefaults,

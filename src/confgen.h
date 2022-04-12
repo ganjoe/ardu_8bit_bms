@@ -121,7 +121,7 @@ Serial.println(offset);
   for (size_t i = 0; i < size; i++)  
   {    Serial.print(CONFBUFFER[i],HEX);}
   Serial.println();
-  ShowConfig();
+  cmdShowConfig();
   Serial.println(F("..done"));
 }
 #endif

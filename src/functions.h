@@ -14,15 +14,15 @@ unsigned long getVoltage (int channel);
 /*-------Command Messenger----------*/
 void attachCommandCallbacks();
 void help();
-void setPeriodicReport();
-void setAvgSamples();
-void setCellLowVolts();
-void setCellHighVolts();
-void setCellmaxDiff();
-void SaveGame();
+void cmdSetPeriodicReport();
+void cmdSetAvgSamples();
+void cmdSetLowHighDiff();
+void cmdSetTempLowHigh();
+void cmdSetAdcScaler();
+void cmdSaveGame();
 void cmdLoadGame();
-void ShowConfig();
-void LoadDefaults();
+void cmdShowConfig();
+void cmdLoadDefaults();
 
 /*------Storage------------*/
 int confgenSaveGame(uint8_t* buffer, int pos);
